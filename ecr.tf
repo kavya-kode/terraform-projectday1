@@ -6,7 +6,7 @@ resource "aws_ecr_repository" "backend" {
   }
 
   tags = {
-    Name = "placemux-backend"
+    Name        = "placemux-backend"
     Environment = "dev"
   }
 }
