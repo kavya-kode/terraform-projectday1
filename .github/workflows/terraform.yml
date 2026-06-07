@@ -33,4 +33,4 @@ jobs:
 
       - name: Push Image
         run: |
-          docker push 215302750371.dkr.ecr.ap-south-1.amazonaws.com/placemux-backend:latestv
+          docker push 215302750371.dkr.ecr.ap-south-1.amazonaws.com/placemux-backend:latest
