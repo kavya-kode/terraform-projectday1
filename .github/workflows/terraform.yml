@@ -1,21 +1,36 @@
-name: Terraform
+name: Build and Push Docker Image
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  terraform:
+  docker:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - uses: hashicorp/setup-terraform@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
 
-      - name: Terraform Init
-        run: terraform init
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Terraform Validate
-        run: terraform validate
+      - name: Build Docker Image
+        run: |
+          docker build -t placemux-backend .
+
+      - name: Tag Image
+        run: |
+          docker tag placemux-backend:latest 215302750371.dkr.ecr.ap-south-1.amazonaws.com/placemux-backend:latest
+
+      - name: Push Image
+        run: |
+          docker push 215302750371.dkr.ecr.ap-south-1.amazonaws.com/placemux-backend:latestv
