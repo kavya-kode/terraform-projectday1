@@ -1,0 +1,44 @@
+name: Deploy to ECS
+
+on:
+push:
+branches:
+- main
+
+jobs:
+deploy:
+runs-on: ubuntu-latest
+
+
+steps:
+  - name: Checkout
+    uses: actions/checkout@v4
+
+  - name: Configure AWS Credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-region: ap-south-1
+
+  - name: Login to ECR
+    uses: aws-actions/amazon-ecr-login@v2
+
+  - name: Build Docker Image
+    run: |
+      docker build -t placemux-backend .
+
+  - name: Tag Image
+    run: |
+      docker tag placemux-backend:latest 215302750371.dkr.ecr.ap-south-1.amazonaws.com/placemux-backend:latest
+
+  - name: Push Image
+    run: |
+      docker push 215302750371.dkr.ecr.ap-south-1.amazonaws.com/placemux-backend:latest
+
+  - name: Force ECS Deployment
+    run: |
+      aws ecs update-service \
+        --cluster placemux-cluster \
+        --service placemux-service \
+        --force-new-deployment
